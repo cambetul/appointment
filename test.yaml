@@ -1,0 +1,111 @@
+- _define:
+    vars:
+    prompt: 
+
+- init:
+    run: rm -f app
+    blocker: true
+
+- compile1:
+    run: g++ -c -Wall -Werror task_management_tool.cpp -o task_management_tool.o  # timeout: 8
+    blocker: true
+
+- compile2:
+    run: g++ -std=c++11 -c -Wall -Werror app.cpp -o app.o  # timeout: 8
+    blocker: true
+
+- link:
+    run: g++ task_management_tool.o app.o -o app  # timeout: 8
+    blocker: true
+
+- check_adding:
+    run: ./app f appointments
+    points: 30
+    script:
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "A"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 60
+        - send: "D"
+        - expect: ".* ATIYI KARANLIK GOREREK AZMI BIRAKMAK ALCAK BIR OLUM VARSA EMINIM BUDUR ANCAK MEHMET AKIF\r\n.*\r\n.*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 20
+        - send: "E"
+        - expect: ".*you sure you want to exit the .*:" #timeout: 8
+        - send: "Y"
+        - expect: _EOF_
+    exit: 0
+
+- check_cycled_list:
+    run: ./app f appointments
+    points: 10
+    script:
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "A"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 60
+        - send: "D"
+        - expect: ".* ATIYI KARANLIK GOREREK AZMI BIRAKMAK ALCAK BIR OLUM VARSA EMINIM BUDUR ANCAK MEHMET AKIF\r\n.checking cycled list:.14. PASS.\r\n.*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 20
+        - send: "E"
+        - expect: ".*you sure you want to exit the .*:" #timeout: 8
+        - send: "Y"
+        - expect: _EOF_
+    exit: 0
+
+- check_droping:
+    run: ./app f appointments
+    points: 20
+    script:
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "A"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 60
+        - send: "R"
+        - expect: ".*\\s+" #timeout: 8
+        - send: "6"
+        - expect: ".*\\s+" #timeout: 8
+        - send: "11"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "D"
+        - expect: ".* ATIYI KARANLIK GOREREK AZMI BIRAKMAK CAK BIR OLUM VARSA EMINIM BUDUR ANCAK MEHMET AKIF\r\n.*\r\n.*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 20
+        - send: "E"
+        - expect: ".*you sure you want to exit the .*:" #timeout: 8
+        - send: "Y"
+        - expect: _EOF_
+    exit: 0
+
+- check_delaying_one_task:
+    run: ./app f appointments
+    points: 20
+    script:
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "A"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 60
+        - send: "G"
+        - expect: ".*\\s+" #timeout: 8
+        - send: "3"
+        - expect: ".*\\s+" #timeout: 8
+        - send: "8"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "D"
+        - expect: ".* ATIYI KARANLIK REREK GOAZMI BIRAKMAK ALCAK BIR OLUM VARSA EMINIM BUDUR ANCAK MEHMET AKIF\r\n.*\r\n.*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 20
+        - send: "E"
+        - expect: ".*you sure you want to exit the .*:" #timeout: 8
+        - send: "Y"
+        - expect: _EOF_
+    exit: 0
+
+- check_delaying_all_tasks_of_day:
+    run: ./app f appointments
+    points: 20
+    script:
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" # timeout: 8
+        - send: "A"
+        - expect: ".*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 60
+        - send: "S"
+        - expect: ".*\\s+" #timeout: 8
+        - send: "2"
+        - expect: ".*\\s+" # timeout: 8
+        - send: "D"
+        - expect: ".* ATIYI GOREREK KAAZRAMI NLBIIKRAKMAK ALCAK BIR OLUM VARSA EMINIM BUDUR ANCAK MEHMET AKIF\r\n.*\r\n.*Enter a choice .A,D,R,G,S,E.:\\s+" #timeout: 20
+        - send: "E"
+        - expect: ".*you sure you want to exit the .*:" #timeout: 8
+        - send: "Y"
+        - expect: _EOF_
+    exit: 0
+
